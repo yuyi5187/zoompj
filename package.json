@@ -1,0 +1,21 @@
+{
+  "name": "zoompj",
+  "version": "1.0.0",
+  "description": "Zoom Clone using WebRTC and Websockets",
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "scripts": {
+    "dev": "nodemon"
+  },
+  "devDependencies": {
+    "@babel/preset-env": "^7.16.5",
+    "nodemon": "^2.0.15"
+  },
+  "dependencies": {
+    "express": "^4.17.2",
+    "pub": "^0.2.0",
+    "pug": "^3.0.2",
+    "ws": "^8.4.0"
+  }
+}
