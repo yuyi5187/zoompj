@@ -22,12 +22,26 @@ const wss= new WebSocket.Server({server});
     console.log(socket);
 } 
 wss.on("connection", handleConnection);*/
+
+function onSocketClose(){
+    console.log("DisConnected to Browser ❌");
+}
+function onSocketMessage(message){
+    console.log(message.toString('utf8'));
+}
+
+const sockets=[];
+
 wss.on("connection", (socket)=>{
     //console.log(socket);
+    sockets.push(socket);
     console.log("Connected to Browser ✔");
-    socket.on("close", ()=> 
-            console.log("DisConnected to Browser ❌"));
-    socket.send("hello!!");
-})
+    socket.on("close", onSocketClose);
+    socket.on("message", (message)=>{
+        //각 브라우저를 aSocket으로 인식하고 메세지를 보낸다
+        sockets.forEach((aSocket)=>aSocket.send(message.toString('utf8')));
+    });
+    //socket.send("hello!!");
+});
 
 server.listen(3000,handleListen);
