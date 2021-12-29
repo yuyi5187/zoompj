@@ -35,13 +35,27 @@ const sockets=[];
 wss.on("connection", (socket)=>{
     //console.log(socket);
     sockets.push(socket);
+    socket["nickname"]="Anon";
     console.log("Connected to Browser ✔");
     socket.on("close", onSocketClose);
-    socket.on("message", (message)=>{
-        //각 브라우저를 aSocket으로 인식하고 메세지를 보낸다
-        sockets.forEach((aSocket)=>aSocket.send(message.toString('utf8')));
+    socket.on("message", (msg)=>{
+        const message=JSON.parse(msg);
+        //console.log(parsed, message.toString('utf8'));
+        switch(message.type){
+            case "new_message":
+                //각 브라우저를 aSocket으로 인식하고 메세지를 보낸다
+                sockets.forEach((aSocket) => 
+                    aSocket.send(`${socket.nickname}: ${message.payload}`));
+            case "nickname":
+                //console.log(message.payload);
+                socket["nickname"]=message.payload;
+        }
+        
     });
     //socket.send("hello!!");
 });
 
 server.listen(3000,handleListen);
+
+
+
