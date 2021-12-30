@@ -24,15 +24,24 @@ wsServer.on("connection", (socket) => {
     });
     socket.on("enter_room", (roomName, done)=> {
         //console.log(roomName);
-        console.log(socket.id);
-        console.log(socket.rooms);
+        //user는 기본적으로 방에 들어가 있음 socket.id     
+        //console.log(socket.id);
         socket.join(roomName);
-        console.log(socket.rooms);
+        /*console.log(socket.rooms);
         setTimeout(()=>{
             done("hello from the backend"); //front-end에서 실행된 코드는 back-end가 실행시킨 것
-        }, 15000);
+        }, 15000);*/ 
+        done();
+        socket.to(roomName).emit("welcome");
     });
-})
+    socket.on("disconnecting",()=>{
+        socket.rooms.forEach((room)=>socket.to(room).emit("bye"));
+    });
+    socket.on("new_message", (msg, room, done)=>{
+        socket.to(room).emit("new_message", msg);
+        done();
+    })
+});
 
 /*const wss= new WebSocket.Server({server});
 
