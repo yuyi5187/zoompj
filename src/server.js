@@ -17,12 +17,20 @@ const handleListen=()=> console.log(`Listening on http://localhost:3000`);
 const httpServer= http.createServer(app);
 const wsServer=SocketIO(httpServer);
 
+
 wsServer.on("connection", (socket) => {
-    socket.on("enter_room", (msg, done)=> {
-        console.log(msg);
+    socket.onAny((event)=>{ //socket안의 event를 살피는 기능
+        console.log(`Socket Event: ${event}`);
+    });
+    socket.on("enter_room", (roomName, done)=> {
+        //console.log(roomName);
+        console.log(socket.id);
+        console.log(socket.rooms);
+        socket.join(roomName);
+        console.log(socket.rooms);
         setTimeout(()=>{
-            done();
-        }, 10000);
+            done("hello from the backend"); //front-end에서 실행된 코드는 back-end가 실행시킨 것
+        }, 15000);
     });
 })
 
