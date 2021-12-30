@@ -17,7 +17,16 @@ app.get("/*", (req,res)=> res.redirect("/"));
 
 const handleListen=()=> console.log(`Listening on http://localhost:3000`);
 const httpServer= http.createServer(app);
-const wsServer=new Server(httpServer);
+const wsServer=new Server(httpServer,{
+    cors:{
+        origin:["https://admin.socket.io"],
+        credentials:true,
+    },
+});
+
+instrument(wsServer,{
+    auth:false
+});
 
 function publicRooms() {
     const { 
