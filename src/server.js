@@ -2,7 +2,9 @@ import express from "express";
 //import WebSocket from "ws";
 import http from "http";
 import path from 'path';
-import SocketIO from "socket.io";
+//import SocketIO from "socket.io";
+import {Server} from "socket.io";
+import {instrument} from "@socket.io/admin-ui";
 
 const _dirname=path.resolve();
 const app=express();
@@ -15,7 +17,7 @@ app.get("/*", (req,res)=> res.redirect("/"));
 
 const handleListen=()=> console.log(`Listening on http://localhost:3000`);
 const httpServer= http.createServer(app);
-const wsServer=SocketIO(httpServer);
+const wsServer=new Server(httpServer);
 
 function publicRooms() {
     const { 
