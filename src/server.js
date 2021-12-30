@@ -17,10 +17,31 @@ const handleListen=()=> console.log(`Listening on http://localhost:3000`);
 const httpServer= http.createServer(app);
 const wsServer=SocketIO(httpServer);
 
+function publicRooms() {
+    const { 
+        sockets: { 
+            adapter: { sids, rooms },
+    },
+    } = wsServer;
+    const publicRooms=[];
+    rooms.forEach((_,key)=>{
+        if(sids.get(key)===undefined){
+            publicRooms.push(key);
+        }
+    });
+    return publicRooms;
+    //const sids= wsServer.sockets.adapter.sids;
+    //const rooms=wsServer.sockets.adapter.rooms;
+}
+
+function countRoom(roomName){
+   return  wsServer.sockets.adapter.rooms.get(roomName)?.size;
+}
 
 wsServer.on("connection", (socket) => {
     socket["nickname"]="Anon";
     socket.onAny((event)=>{ //socket안의 event를 살피는 기능
+        console.log(wsServer.sockets.adapter);
         console.log(`Socket Event: ${event}`);
     });
     socket.on("enter_room", (roomName, done)=> {
@@ -33,12 +54,19 @@ wsServer.on("connection", (socket) => {
             done("hello from the backend"); //front-end에서 실행된 코드는 back-end가 실행시킨 것
         }, 15000);*/ 
         done();
-        socket.to(roomName).emit("welcome", socket.nickname);
+        socket.to(roomName).emit("welcome", socket.nickname, countRoom(roomName));
+        wsServer.sockets.emit("room_change", publicRooms());
     });
+
     socket.on("disconnecting",()=>{
         socket.rooms.forEach((room)=>
-        socket.to(room).emit("bye", socket.nickname));
+        socket.to(room).emit("bye", socket.nickname, countRoom(room)-1));
+       
     });
+    socket.on("disconnect", ()=>{
+        wsServer.sockets.emit("room_change",publicRooms());
+    });
+
     socket.on("new_message", (msg, room, done)=>{
         socket.to(room).emit("new_message", `${socket.nickname}:${msg}`);
         done();
@@ -47,16 +75,13 @@ wsServer.on("connection", (socket) => {
 });
 
 /*const wss= new WebSocket.Server({server});
-
 function onSocketClose(){
     console.log("DisConnected to Browser ❌");
 }
 function onSocketMessage(message){
     console.log(message.toString('utf8'));
 }
-
 const sockets=[];
-
 wss.on("connection", (socket)=>{
     //console.log(socket);
     sockets.push(socket);
@@ -81,6 +106,3 @@ wss.on("connection", (socket)=>{
 });
 */
 httpServer.listen(3000,handleListen);
-
-
-
